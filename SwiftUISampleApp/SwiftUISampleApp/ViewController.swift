@@ -16,12 +16,15 @@ class ViewController: UIViewController {
         // Do any additional setup after loading the view.
         let swiftUIView = RepoView()
         let hostingController = UIHostingController(rootView: swiftUIView)
+        if #available(iOS 16.4, *) {
+            hostingController.safeAreaRegions = []
+        }
         addChild(hostingController)
         hostingController.view.translatesAutoresizingMaskIntoConstraints = false
         view.addSubview(hostingController.view)
         
         NSLayoutConstraint.activate([
-            hostingController.view.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
+            hostingController.view.topAnchor.constraint(equalTo: view.topAnchor),
             hostingController.view.leadingAnchor.constraint(equalTo: view.leadingAnchor),
             hostingController.view.trailingAnchor.constraint(equalTo: view.trailingAnchor),
             hostingController.view.bottomAnchor.constraint(equalTo: view.bottomAnchor)
