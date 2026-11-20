@@ -35,6 +35,9 @@ private struct AvatarView: View {
         }
         .frame(width: 32, height: 32)
         .clipShape(Circle())
+        .accessibilityElement()
+        .accessibilityLabel("Owner avatar")
+        .accessibilityIdentifier(viewModel.image == nil ? "avatar.placeholder" : "avatar.loaded")
         .task(id: urlString) {
             await viewModel.loadImage(from: urlString)
         }

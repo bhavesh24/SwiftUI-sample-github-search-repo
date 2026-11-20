@@ -4,7 +4,7 @@ iOS app that searches GitHub repositories via the [Search repositories API](http
 
 ## Build
 
-- Xcode project: `SwiftUISampleApp/SwiftUISampleApp.xcodeproj`, single app target and scheme `SwiftUISampleApp`. No test target, no Swift packages.
+- Xcode project: `SwiftUISampleApp/SwiftUISampleApp.xcodeproj`. Its shared scheme `SwiftUISampleApp` builds the app and runs both test targets. No Swift packages.
 - Build from the repo root:
   ```sh
   xcodebuild -project SwiftUISampleApp/SwiftUISampleApp.xcodeproj -scheme SwiftUISampleApp -destination 'generic/platform=iOS Simulator' build
@@ -13,13 +13,30 @@ iOS app that searches GitHub repositories via the [Search repositories API](http
 - Language mode: **Swift 6** (`SWIFT_VERSION = 6.0`), so strict concurrency checking is on. Deployment target iOS 17.0, iPhone and iPad.
 - Editor SourceKit errors such as "No such module 'UIKit'" or "Cannot find 'Repo' in scope" come from the VS Code `buildServer.json` setup, not the real build. Trust `xcodebuild`.
 
+## Tests
+
+- `SwiftUISampleAppTests`: unit tests written with Swift Testing (`import Testing`, `@Test`, `#expect`). They cover the `NetworkManager` image cache and `AvatarViewModel`.
+  - The tests never touch the network: `StubURLProtocol` answers each URL with a canned response and counts requests.
+  - Each test uses unique URLs and its own cache directory, created with `NetworkManager(session:imageCacheDirectory:)`, so tests can run in parallel.
+- `SwiftUISampleAppUITests`: XCUITest end-to-end tests against the **live GitHub API**.
+  - They need network access, and the unauthenticated search API allows about 10 searches a minute.
+  - They find avatars by accessibility identifier: `avatar.loaded` or `avatar.placeholder`, set in `RepoRow.swift`.
+  - Each test attaches a screenshot to the result bundle.
+- Run them (use a standard iPhone simulator; the test runner hung on the "iPhone Duo" simulator):
+  ```sh
+  xcodebuild test -project SwiftUISampleApp/SwiftUISampleApp.xcodeproj -scheme SwiftUISampleApp \
+    -destination 'platform=iOS Simulator,name=iPhone 18 Pro' -only-testing:SwiftUISampleAppTests   # or SwiftUISampleAppUITests
+  ```
+- Export UI test screenshots with `xcrun xcresulttool export attachments --path <bundle>.xcresult --output-path <dir>`, where the bundle comes from `-resultBundlePath`.
+- Make new code testable by injecting dependencies with production defaults, e.g. `AvatarViewModel(networkManager: .shared)`.
+
 ## Adding files
 
 The project does **not** use synchronized folders (`objectVersion = 56`). A new `.swift` file must be registered in `project.pbxproj` by hand, or it won't compile. Add four entries, copying an existing file's entries as a pattern (e.g. `RepoViewModel.swift`):
 1. `PBXBuildFile`
 2. `PBXFileReference`
 3. a child in the right `PBXGroup`
-4. an entry in the target's `PBXSourcesBuildPhase`
+4. an entry in that target's `PBXSourcesBuildPhase` (app, unit test or UI test target)
 
 Use new unique 24-hex-digit IDs, then build to confirm.
 

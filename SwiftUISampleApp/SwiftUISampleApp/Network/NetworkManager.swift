@@ -38,9 +38,16 @@ final class NetworkManager: Sendable {
     static let shared = NetworkManager(session: URLSession(configuration: .default))
 
     let session: URLSession?
+    /// Where downloaded images are cached. Injectable so tests can use their own directory.
+    let imageCacheDirectory: URL
 
-    private init(session: URLSession) {
+    init(
+        session: URLSession,
+        imageCacheDirectory: URL = FileManager.default.temporaryDirectory
+            .appendingPathComponent("ImageCache", isDirectory: true)
+    ) {
         self.session = session
+        self.imageCacheDirectory = imageCacheDirectory
     }
     
     public func getData(queryParams: [String: String]) async throws -> Data {
@@ -71,19 +78,17 @@ final class NetworkManager: Sendable {
     
     // MARK: - Image cache
 
-    private static let imageCacheDirectory = FileManager.default.temporaryDirectory
-        .appendingPathComponent("ImageCache", isDirectory: true)
     /// Cached images younger than this are used without re-downloading.
-    private static let imageCacheMaxAge: TimeInterval = 24 * 60 * 60
+    static let imageCacheMaxAge: TimeInterval = 24 * 60 * 60
     /// Cached images older than this are deleted by `pruneImageCache()`. Kept longer than
     /// `imageCacheMaxAge` so stale copies can still be shown when a refresh fails (e.g. offline).
-    private static let imageCacheRetention: TimeInterval = 7 * 24 * 60 * 60
+    static let imageCacheRetention: TimeInterval = 7 * 24 * 60 * 60
 
     /// Returns the image data for `url`, from the on-disk cache if a fresh copy exists,
     /// otherwise by downloading it. If the download fails, falls back to a stale cached copy.
     /// Runs off the main actor and is cancelled with the calling task.
     func loadImageData(url: URL) async throws -> Data {
-        let cacheURL = Self.cacheFileURL(for: url)
+        let cacheURL = cacheFileURL(for: url)
         if let data = Self.cachedData(at: cacheURL, maxAge: Self.imageCacheMaxAge) {
             return data
         }
@@ -103,7 +108,7 @@ final class NetworkManager: Sendable {
     func pruneImageCache() {
         let fileManager = FileManager.default
         guard let files = try? fileManager.contentsOfDirectory(
-            at: Self.imageCacheDirectory,
+            at: imageCacheDirectory,
             includingPropertiesForKeys: [.isRegularFileKey, .contentModificationDateKey]
         ) else { return }
         let cutoff = Date().addingTimeInterval(-Self.imageCacheRetention)
@@ -128,9 +133,9 @@ final class NetworkManager: Sendable {
             throw NetworkError.invalidResponse(nil, response)
         }
 
-        try fileManager.createDirectory(at: Self.imageCacheDirectory, withIntermediateDirectories: true)
+        try fileManager.createDirectory(at: imageCacheDirectory, withIntermediateDirectories: true)
         // Stage under a unique name in the cache directory, then swap it into place in one step.
-        let stagedURL = Self.imageCacheDirectory.appendingPathComponent(UUID().uuidString, isDirectory: false)
+        let stagedURL = imageCacheDirectory.appendingPathComponent(UUID().uuidString, isDirectory: false)
         try fileManager.moveItem(at: tempURL, to: stagedURL)
         do {
             do {
@@ -146,7 +151,7 @@ final class NetworkManager: Sendable {
 
     /// A cache file name derived from a hash of the full URL (host, path and query),
     /// so it is unique per URL and never empty.
-    private static func cacheFileURL(for url: URL) -> URL {
+    func cacheFileURL(for url: URL) -> URL {
         let digest = SHA256.hash(data: Data(url.absoluteString.utf8))
         let fileName = digest.map { String(format: "%02x", $0) }.joined()
         return imageCacheDirectory.appendingPathComponent(fileName, isDirectory: false)
