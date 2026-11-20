@@ -35,7 +35,7 @@ UIKit shell hosting SwiftUI, with MVVM:
 - `Repo/Model/` contains `Codable` structs (`RepoContainer`, `Repo`, `Owner`, `License`). Property names match the API's JSON keys (snake_case, e.g. `full_name`, `avatar_url`), and every field is optional.
 - `Network/NetworkManager.swift` is the only place that talks to the network. Access it through `NetworkManager.shared`, a single shared instance.
   - `getData(queryParams:)` runs the repo search.
-  - `loadImageData(url:)` and `download(url:toFile:)` handle images. They cache files in `tmp/ImageCache/`, named by a SHA-256 hash of the full URL, kept for 24 hours, and moved into place in one step.
+  - `loadImageData(url:)` and `download(url:toFile:)` handle images. They cache files in `tmp/ImageCache/`, named by a SHA-256 hash of the full URL and moved into place in one step. A cached file is reused for 24 hours. After that it's re-downloaded, but the old copy is still shown if the download fails (e.g. offline). `pruneImageCache()` runs in the background at launch (`AppDelegate`) and deletes files older than 7 days.
 
 ## Conventions
 

@@ -4,9 +4,15 @@
 //
 
 import UIKit
+import os
 
 @MainActor final class AvatarViewModel: ObservableObject {
     @Published var image: UIImage?
+
+    private static let logger = Logger(
+        subsystem: Bundle.main.bundleIdentifier ?? "SwiftUISampleApp",
+        category: "AvatarViewModel"
+    )
 
     /// Pixel size requested from GitHub and used for the decoded thumbnail
     /// (32pt avatar at @3x).
@@ -29,13 +35,20 @@ import UIKit
             // download is cancelled when this task is cancelled.
             let data = try await NetworkManager.shared.loadImageData(url: url)
             let side = CGFloat(Self.pixelSize)
-            // Decode off the main thread at display size.
+            // `await` selects the async overload of byPreparingThumbnail(ofSize:)
+            // (UIKit's prepareThumbnailOfSize:completionHandler:), which decodes on a
+            // background thread. UIImage(data:) itself only wraps the bytes; it doesn't decode.
             let thumbnail = await UIImage(data: data)?
                 .byPreparingThumbnail(ofSize: CGSize(width: side, height: side))
             guard !Task.isCancelled, loadedURLString == urlString else { return }
             image = thumbnail
+        } catch is CancellationError {
+            // Row went away; keep the placeholder.
+        } catch let error as URLError where error.code == .cancelled {
+            // Row went away; keep the placeholder.
         } catch {
-            // Keep the placeholder on failure or cancellation.
+            // Keep the placeholder, but leave a trace of real failures.
+            Self.logger.error("Avatar load failed for \(url.absoluteString, privacy: .public): \(error.localizedDescription, privacy: .public)")
         }
     }
 

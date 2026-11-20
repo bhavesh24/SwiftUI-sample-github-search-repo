@@ -73,17 +73,47 @@ final class NetworkManager: Sendable {
 
     private static let imageCacheDirectory = FileManager.default.temporaryDirectory
         .appendingPathComponent("ImageCache", isDirectory: true)
+    /// Cached images younger than this are used without re-downloading.
     private static let imageCacheMaxAge: TimeInterval = 24 * 60 * 60
+    /// Cached images older than this are deleted by `pruneImageCache()`. Kept longer than
+    /// `imageCacheMaxAge` so stale copies can still be shown when a refresh fails (e.g. offline).
+    private static let imageCacheRetention: TimeInterval = 7 * 24 * 60 * 60
 
     /// Returns the image data for `url`, from the on-disk cache if a fresh copy exists,
-    /// otherwise by downloading it. Runs off the main actor and is cancelled with the calling task.
+    /// otherwise by downloading it. If the download fails, falls back to a stale cached copy.
+    /// Runs off the main actor and is cancelled with the calling task.
     func loadImageData(url: URL) async throws -> Data {
         let cacheURL = Self.cacheFileURL(for: url)
-        if let data = Self.freshCachedData(at: cacheURL) {
+        if let data = Self.cachedData(at: cacheURL, maxAge: Self.imageCacheMaxAge) {
             return data
         }
-        try await download(url: url, toFile: cacheURL)
+        do {
+            try await download(url: url, toFile: cacheURL)
+        } catch {
+            if let staleData = Self.cachedData(at: cacheURL, maxAge: nil) {
+                return staleData
+            }
+            throw error
+        }
         return try Data(contentsOf: cacheURL)
+    }
+
+    /// Deletes cached images older than `imageCacheRetention`. Does blocking file I/O,
+    /// so call it off the main thread.
+    func pruneImageCache() {
+        let fileManager = FileManager.default
+        guard let files = try? fileManager.contentsOfDirectory(
+            at: Self.imageCacheDirectory,
+            includingPropertiesForKeys: [.isRegularFileKey, .contentModificationDateKey]
+        ) else { return }
+        let cutoff = Date().addingTimeInterval(-Self.imageCacheRetention)
+        for file in files {
+            guard let values = try? file.resourceValues(forKeys: [.isRegularFileKey, .contentModificationDateKey]),
+                  values.isRegularFile == true,
+                  let modified = values.contentModificationDate,
+                  modified < cutoff else { continue }
+            try? fileManager.removeItem(at: file)
+        }
     }
 
     /// Downloads `url` and atomically places it at `file`, so concurrent
@@ -122,11 +152,14 @@ final class NetworkManager: Sendable {
         return imageCacheDirectory.appendingPathComponent(fileName, isDirectory: false)
     }
 
-    private static func freshCachedData(at file: URL) -> Data? {
+    /// Reads a cached regular file, if it exists and (when `maxAge` is given) is younger than `maxAge`.
+    private static func cachedData(at file: URL, maxAge: TimeInterval?) -> Data? {
         guard let attributes = try? FileManager.default.attributesOfItem(atPath: file.path),
               attributes[.type] as? FileAttributeType == .typeRegular,
-              let modified = attributes[.modificationDate] as? Date,
-              Date().timeIntervalSince(modified) < imageCacheMaxAge else {
+              let modified = attributes[.modificationDate] as? Date else {
+            return nil
+        }
+        if let maxAge, Date().timeIntervalSince(modified) >= maxAge {
             return nil
         }
         return try? Data(contentsOf: file)
