@@ -16,6 +16,7 @@
 		18457FEF2B087CED00E53E06 /* RepoView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 18457FEE2B087CED00E53E06 /* RepoView.swift */; };
 		18457FF22B0897FA00E53E06 /* NetworkManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 18457FF12B0897FA00E53E06 /* NetworkManager.swift */; };
 		18457FF52B08AD2400E53E06 /* RepoViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 18457FF42B08AD2400E53E06 /* RepoViewModel.swift */; };
+		A7A11E0D2EC0000000000002 /* AvatarViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = A7A11E0D2EC0000000000001 /* AvatarViewModel.swift */; };
 		18457FF92B08BF2800E53E06 /* License.swift in Sources */ = {isa = PBXBuildFile; fileRef = 18457FF62B08BF2700E53E06 /* License.swift */; };
 		18457FFA2B08BF2800E53E06 /* Owner.swift in Sources */ = {isa = PBXBuildFile; fileRef = 18457FF72B08BF2700E53E06 /* Owner.swift */; };
 		18457FFB2B08BF2800E53E06 /* Repo.swift in Sources */ = {isa = PBXBuildFile; fileRef = 18457FF82B08BF2800E53E06 /* Repo.swift */; };
@@ -34,6 +35,7 @@
 		18457FEE2B087CED00E53E06 /* RepoView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RepoView.swift; sourceTree = "<group>"; };
 		18457FF12B0897FA00E53E06 /* NetworkManager.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NetworkManager.swift; sourceTree = "<group>"; };
 		18457FF42B08AD2400E53E06 /* RepoViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RepoViewModel.swift; sourceTree = "<group>"; };
+		A7A11E0D2EC0000000000001 /* AvatarViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AvatarViewModel.swift; sourceTree = "<group>"; };
 		18457FF62B08BF2700E53E06 /* License.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = License.swift; sourceTree = "<group>"; };
 		18457FF72B08BF2700E53E06 /* Owner.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Owner.swift; sourceTree = "<group>"; };
 		18457FF82B08BF2800E53E06 /* Repo.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Repo.swift; sourceTree = "<group>"; };
@@ -124,6 +126,7 @@
 			isa = PBXGroup;
 			children = (
 				18457FF42B08AD2400E53E06 /* RepoViewModel.swift */,
+				A7A11E0D2EC0000000000001 /* AvatarViewModel.swift */,
 			);
 			path = ViewModel;
 			sourceTree = "<group>";
@@ -204,6 +207,7 @@
 				18457FFA2B08BF2800E53E06 /* Owner.swift in Sources */,
 				18457FFB2B08BF2800E53E06 /* Repo.swift in Sources */,
 				18457FF52B08AD2400E53E06 /* RepoViewModel.swift in Sources */,
+				A7A11E0D2EC0000000000002 /* AvatarViewModel.swift in Sources */,
 				18457FDF2B087AA900E53E06 /* ViewController.swift in Sources */,
 				18457FF22B0897FA00E53E06 /* NetworkManager.swift in Sources */,
 				18457FDB2B087AA900E53E06 /* AppDelegate.swift in Sources */,
@@ -375,7 +379,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = com.bhavesh.SwiftUISampleApp;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
-				SWIFT_VERSION = 5.0;
+				SWIFT_VERSION = 6.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
 			name = Debug;
@@ -402,7 +406,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = com.bhavesh.SwiftUISampleApp;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
-				SWIFT_VERSION = 5.0;
+				SWIFT_VERSION = 6.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
 			name = Release;

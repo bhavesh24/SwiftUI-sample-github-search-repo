@@ -33,7 +33,7 @@ import Foundation
         isLoading = true
         
         do {
-            let data = try await NetworkManager.shared().getData(queryParams: [QueryParams.searchKey: keyword])
+            let data = try await NetworkManager.shared.getData(queryParams: [QueryParams.searchKey: keyword])
             guard !Task.isCancelled else { return }
             let repoContainer = try JSONDecoder().decode(RepoContainer.self, from: data)
             repos = repoContainer.items ?? []
