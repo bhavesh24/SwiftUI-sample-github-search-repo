@@ -1,4 +1,7 @@
 # SwiftUI-sample-github-search-repo
+
+[![CI](https://github.com/bhavesh24/SwiftUI-sample-github-search-repo/actions/workflows/ci.yml/badge.svg?branch=develop)](https://github.com/bhavesh24/SwiftUI-sample-github-search-repo/actions/workflows/ci.yml)
+
 An app to search GitHub repositories using SwiftUI
 
 The app uses GitHub Search repositories API

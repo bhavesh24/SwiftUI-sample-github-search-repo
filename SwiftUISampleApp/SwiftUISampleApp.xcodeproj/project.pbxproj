@@ -25,6 +25,11 @@
 		A7A11E0D2EC0000000000107 /* AvatarViewModelTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A7A11E0D2EC0000000000106 /* AvatarViewModelTests.swift */; };
 		A7A11E0D2EC0000000000109 /* StubURLProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = A7A11E0D2EC0000000000108 /* StubURLProtocol.swift */; };
 		A7A11E0D2EC0000000000205 /* RepoSearchUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A7A11E0D2EC0000000000204 /* RepoSearchUITests.swift */; };
+		A7A11E0D2EC0000000000302 /* UITestStubURLProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = A7A11E0D2EC0000000000301 /* UITestStubURLProtocol.swift */; };
+		A7A11E0D2EC0000000000304 /* RepoViewModelTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A7A11E0D2EC0000000000303 /* RepoViewModelTests.swift */; };
+		A7A11E0D2EC0000000000306 /* ModelTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A7A11E0D2EC0000000000305 /* ModelTests.swift */; };
+		A7A11E0D2EC0000000000308 /* UITestStubURLProtocolTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A7A11E0D2EC0000000000307 /* UITestStubURLProtocolTests.swift */; };
+		A7A11E0D2EC000000000030A /* ViewRenderingTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A7A11E0D2EC0000000000309 /* ViewRenderingTests.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -67,6 +72,11 @@
 		A7A11E0D2EC0000000000102 /* SwiftUISampleAppTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = SwiftUISampleAppTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		A7A11E0D2EC0000000000204 /* RepoSearchUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RepoSearchUITests.swift; sourceTree = "<group>"; };
 		A7A11E0D2EC0000000000202 /* SwiftUISampleAppUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = SwiftUISampleAppUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		A7A11E0D2EC0000000000301 /* UITestStubURLProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UITestStubURLProtocol.swift; sourceTree = "<group>"; };
+		A7A11E0D2EC0000000000303 /* RepoViewModelTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RepoViewModelTests.swift; sourceTree = "<group>"; };
+		A7A11E0D2EC0000000000305 /* ModelTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ModelTests.swift; sourceTree = "<group>"; };
+		A7A11E0D2EC0000000000307 /* UITestStubURLProtocolTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UITestStubURLProtocolTests.swift; sourceTree = "<group>"; };
+		A7A11E0D2EC0000000000309 /* ViewRenderingTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewRenderingTests.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -134,6 +144,7 @@
 			isa = PBXGroup;
 			children = (
 				18457FF12B0897FA00E53E06 /* NetworkManager.swift */,
+				A7A11E0D2EC0000000000301 /* UITestStubURLProtocol.swift */,
 			);
 			path = Network;
 			sourceTree = "<group>";
@@ -182,6 +193,10 @@
 				A7A11E0D2EC0000000000104 /* NetworkManagerTests.swift */,
 				A7A11E0D2EC0000000000106 /* AvatarViewModelTests.swift */,
 				A7A11E0D2EC0000000000108 /* StubURLProtocol.swift */,
+				A7A11E0D2EC0000000000309 /* ViewRenderingTests.swift */,
+				A7A11E0D2EC0000000000307 /* UITestStubURLProtocolTests.swift */,
+				A7A11E0D2EC0000000000305 /* ModelTests.swift */,
+				A7A11E0D2EC0000000000303 /* RepoViewModelTests.swift */,
 			);
 			path = SwiftUISampleAppTests;
 			sourceTree = "<group>";
@@ -333,6 +348,7 @@
 				A7A11E0D2EC0000000000002 /* AvatarViewModel.swift in Sources */,
 				18457FDF2B087AA900E53E06 /* ViewController.swift in Sources */,
 				18457FF22B0897FA00E53E06 /* NetworkManager.swift in Sources */,
+				A7A11E0D2EC0000000000302 /* UITestStubURLProtocol.swift in Sources */,
 				18457FDB2B087AA900E53E06 /* AppDelegate.swift in Sources */,
 				18457FEF2B087CED00E53E06 /* RepoView.swift in Sources */,
 				18457FDD2B087AA900E53E06 /* SceneDelegate.swift in Sources */,
@@ -346,6 +362,10 @@
 				A7A11E0D2EC0000000000105 /* NetworkManagerTests.swift in Sources */,
 				A7A11E0D2EC0000000000107 /* AvatarViewModelTests.swift in Sources */,
 				A7A11E0D2EC0000000000109 /* StubURLProtocol.swift in Sources */,
+				A7A11E0D2EC000000000030A /* ViewRenderingTests.swift in Sources */,
+				A7A11E0D2EC0000000000308 /* UITestStubURLProtocolTests.swift in Sources */,
+				A7A11E0D2EC0000000000306 /* ModelTests.swift in Sources */,
+				A7A11E0D2EC0000000000304 /* RepoViewModelTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

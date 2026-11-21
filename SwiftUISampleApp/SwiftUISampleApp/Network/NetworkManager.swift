@@ -35,7 +35,33 @@ enum QueryParams {
 
 final class NetworkManager: Sendable {
     
-    static let shared = NetworkManager(session: URLSession(configuration: .default))
+    static let shared = makeShared()
+
+    /// Builds the shared instance. In Debug builds launched with
+    /// `UITestStubURLProtocol.launchArgument`, it uses the stub session and a separate image
+    /// cache that is emptied at launch, so every UI test run starts with no cached avatars.
+    static func makeShared(arguments: [String] = ProcessInfo.processInfo.arguments) -> NetworkManager {
+        #if DEBUG
+        if arguments.contains(UITestStubURLProtocol.launchArgument) {
+            let cacheDirectory = UITestStubURLProtocol.imageCacheDirectory
+            try? FileManager.default.removeItem(at: cacheDirectory)
+            return NetworkManager(session: makeDefaultSession(arguments: arguments), imageCacheDirectory: cacheDirectory)
+        }
+        #endif
+        return NetworkManager(session: makeDefaultSession(arguments: arguments))
+    }
+
+    /// The app's session. In Debug builds, UI tests launch the app with
+    /// `UITestStubURLProtocol.launchArgument` to get canned responses instead of the network.
+    static func makeDefaultSession(arguments: [String] = ProcessInfo.processInfo.arguments) -> URLSession {
+        let configuration = URLSessionConfiguration.default
+        #if DEBUG
+        if arguments.contains(UITestStubURLProtocol.launchArgument) {
+            configuration.protocolClasses = [UITestStubURLProtocol.self]
+        }
+        #endif
+        return URLSession(configuration: configuration)
+    }
 
     let session: URLSession?
     /// Where downloaded images are cached. Injectable so tests can use their own directory.
