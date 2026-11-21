@@ -34,7 +34,7 @@ iOS app that searches GitHub repositories via the [Search repositories API](http
 ## CI
 
 `.github/workflows/ci.yml` (GitHub Actions, `macos-26`, latest stable Xcode) runs on pushes to `develop`/`main`, on pull requests, and on manual dispatch. It has two parallel jobs:
-- `unit-tests`: a Release simulator build with `CODE_SIGNING_ALLOWED=NO` (this proves the Debug-only stub compiles out), then the unit tests and the 80% coverage gate.
+- `unit-tests`: the unit tests and the 80% coverage gate.
 - `ui-tests`: the UI tests and the 80% coverage gate.
 
 Each job uploads its `.xcresult` and coverage report as artifacts, and writes a coverage table to the job summary. `scripts/pick-simulator.sh` picks the simulator, because runner images ship different device names.
