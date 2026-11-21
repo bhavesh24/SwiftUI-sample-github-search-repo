@@ -151,7 +151,78 @@ final class NetworkManagerTests {
         #expect(!FileManager.default.fileExists(atPath: cacheDirectory.path))
     }
 
+    // MARK: - Repo search
+
+    @Test func getDataReturnsBodyOfSuccessfulResponse() async throws {
+        let keyword = UUID().uuidString
+        let body = Data(#"{"items":[]}"#.utf8)
+        StubURLProtocol.stub(try Self.searchURL(keyword: keyword), with: .success(data: body))
+
+        let data = try await manager.getData(queryParams: [QueryParams.searchKey: keyword])
+
+        #expect(data == body)
+        #expect(StubURLProtocol.requestCount(for: try Self.searchURL(keyword: keyword)) == 1)
+    }
+
+    @Test func getDataThrowsInvalidResponseForErrorStatus() async throws {
+        let keyword = UUID().uuidString
+        let body = Data("rate limited".utf8)
+        StubURLProtocol.stub(try Self.searchURL(keyword: keyword), with: .success(statusCode: 403, data: body))
+
+        do {
+            _ = try await manager.getData(queryParams: [QueryParams.searchKey: keyword])
+            Issue.record("expected an error")
+        } catch let NetworkError.invalidResponse(data, response) {
+            #expect(data == body)
+            #expect((response as? HTTPURLResponse)?.statusCode == 403)
+        }
+    }
+
+    @Test func getDataRethrowsTransportErrors() async throws {
+        let keyword = UUID().uuidString
+        StubURLProtocol.stub(try Self.searchURL(keyword: keyword), with: .failure(.notConnectedToInternet))
+
+        await #expect(throws: URLError.self) {
+            try await self.manager.getData(queryParams: [QueryParams.searchKey: keyword])
+        }
+    }
+
+    @Test func networkErrorDescriptions() {
+        #expect(NetworkError.invalidURL.description == "Invalid URL")
+        #expect(NetworkError.invalidResponse(nil, nil).description == "We're facing some issues!")
+    }
+
+    @Test func defaultSessionUsesStubOnlyWithLaunchArgument() {
+        let stubbed = NetworkManager.makeDefaultSession(arguments: [UITestStubURLProtocol.launchArgument])
+        let live = NetworkManager.makeDefaultSession(arguments: [])
+
+        #expect(stubbed.configuration.protocolClasses?.first == UITestStubURLProtocol.self)
+        #expect(live.configuration.protocolClasses?.first != UITestStubURLProtocol.self)
+    }
+
+    @Test func sharedInstanceInStubModeStartsWithEmptySeparateCache() throws {
+        let stubCache = UITestStubURLProtocol.imageCacheDirectory
+        try FileManager.default.createDirectory(at: stubCache, withIntermediateDirectories: true)
+        try Data("old avatar".utf8).write(to: stubCache.appendingPathComponent("leftover"))
+
+        let stubbed = NetworkManager.makeShared(arguments: [UITestStubURLProtocol.launchArgument])
+        let live = NetworkManager.makeShared(arguments: [])
+
+        #expect(stubbed.imageCacheDirectory == stubCache)
+        #expect(!FileManager.default.fileExists(atPath: stubCache.path), "leftover avatars must be cleared")
+        #expect(stubbed.session?.configuration.protocolClasses?.first == UITestStubURLProtocol.self)
+        #expect(live.imageCacheDirectory.lastPathComponent == "ImageCache")
+        #expect(live.session?.configuration.protocolClasses?.first != UITestStubURLProtocol.self)
+    }
+
     // MARK: - Helpers
+
+    /// The URL `getData` requests for a single-keyword search.
+    static func searchURL(keyword: String) throws -> URL {
+        var components = try #require(URLComponents(string: NetworkConstants.baseUrl))
+        components.queryItems = [URLQueryItem(name: QueryParams.searchKey, value: keyword)]
+        return try #require(components.url)
+    }
 
     private func uniqueURL() -> URL {
         URL(string: "https://avatars.test/u/\(UUID().uuidString)?v=4")!

@@ -1,0 +1,89 @@
+name: CI
+
+on:
+  push:
+    branches: [develop, main]
+  pull_request:
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  PROJECT: SwiftUISampleApp/SwiftUISampleApp.xcodeproj
+  SCHEME: SwiftUISampleApp
+  COVERAGE_THRESHOLD: "80"
+
+jobs:
+  unit-tests:
+    name: Build + unit tests
+    runs-on: macos-26
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: maxim-lobanov/setup-xcode@v1
+        with:
+          xcode-version: latest-stable
+
+      - name: Build Release (no signing)
+        run: |
+          set -o pipefail
+          xcodebuild build -project "$PROJECT" -scheme "$SCHEME" -configuration Release \
+            -destination 'generic/platform=iOS Simulator' CODE_SIGNING_ALLOWED=NO
+
+      - name: Run unit tests
+        run: |
+          set -o pipefail
+          xcodebuild test -project "$PROJECT" -scheme "$SCHEME" \
+            -destination "id=$(scripts/pick-simulator.sh)" \
+            -only-testing:SwiftUISampleAppTests \
+            -resultBundlePath build/UnitTests.xcresult
+
+      - name: Check unit test coverage
+        run: scripts/check-coverage.sh build/UnitTests.xcresult "$COVERAGE_THRESHOLD" "Unit tests"
+
+      - name: Upload results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: unit-test-results
+          path: |
+            build/UnitTests.xcresult
+            build/UnitTests-coverage.json
+            build/UnitTests-coverage.txt
+          if-no-files-found: ignore
+
+  ui-tests:
+    name: UI tests
+    runs-on: macos-26
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: maxim-lobanov/setup-xcode@v1
+        with:
+          xcode-version: latest-stable
+
+      - name: Run UI tests
+        run: |
+          set -o pipefail
+          xcodebuild test -project "$PROJECT" -scheme "$SCHEME" \
+            -destination "id=$(scripts/pick-simulator.sh)" \
+            -only-testing:SwiftUISampleAppUITests \
+            -resultBundlePath build/UITests.xcresult
+
+      - name: Check UI test coverage
+        run: scripts/check-coverage.sh build/UITests.xcresult "$COVERAGE_THRESHOLD" "UI tests"
+
+      - name: Upload results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ui-test-results
+          path: |
+            build/UITests.xcresult
+            build/UITests-coverage.json
+            build/UITests-coverage.txt
+          if-no-files-found: ignore
